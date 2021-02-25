@@ -10,6 +10,9 @@
 #include <iostream>
 #include <QWidget>
 #include <QPushButton>
+#include <QLabel>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 
 struct AdsHdl {
     ULONG in;
@@ -41,9 +44,17 @@ class SCADAWindow : public QWidget
     Q_OBJECT
 
     bool        m_state;
-    QPushButton *m_in;
-    QPushButton *m_out;
     AdsInfos    m_ads;
+
+    QPushButton *m_in_button;
+    QPushButton *m_out_button;
+
+    QLabel      *m_in_label;
+    QLabel      *m_out_label;
+
+    QHBoxLayout *m_main_layout;
+    QVBoxLayout *m_left_layout;
+    QVBoxLayout *m_right_layout;
 public:
     explicit SCADAWindow();
     ~SCADAWindow();

@@ -2,20 +2,37 @@
 
 SCADAWindow::SCADAWindow() : QWidget()
 {
-    setFixedSize(300, 200);
-
     m_ads.data.in = false;
     m_ads.data.out = false;
 
     m_state = false;
-    m_in = new QPushButton("In", this);
-    m_out = new QPushButton("Out", this);
 
-    m_in->move(115, 50);
-    m_out->move(115, 100);
+    m_main_layout = new QHBoxLayout;
+    m_left_layout = new QVBoxLayout;
+    m_right_layout = new QVBoxLayout;
 
-    QObject::connect(m_in, SIGNAL(clicked()), this, SLOT(stateChanged()));
-    QObject::connect(m_out, SIGNAL(clicked()), this, SLOT(stateChanged()));
+    m_in_label = new QLabel("In : ");
+    m_out_label = new QLabel("Out : ", this);
+
+    m_in_button = new QPushButton("In", this);
+    m_out_button = new QPushButton("Out", this);
+
+    connect(m_in_button, SIGNAL(clicked()), this, SLOT(stateChanged()));
+    connect(m_out_button, SIGNAL(clicked()), this, SLOT(stateChanged()));
+
+    // Setting Left Layout
+    m_left_layout->addWidget(m_in_button);
+    m_left_layout->addWidget(m_out_button);
+
+    // Setting right Layout
+    m_right_layout->addWidget(m_in_label);
+    m_right_layout->addWidget(m_out_label);
+
+    // Setting main Layout
+    m_main_layout->addLayout(m_left_layout);
+    m_main_layout->addLayout(m_right_layout);
+    setLayout(m_main_layout);
+
 
     if ( initAdsConnection() )
         std::cout << "Error connecting to PLC" << std::endl;
@@ -29,8 +46,8 @@ SCADAWindow::SCADAWindow() : QWidget()
 
 SCADAWindow::~SCADAWindow()
 {
-    delete m_in;
-    delete m_out;
+    delete m_in_label;
+    delete m_out_label;
     m_ads.error = AdsPortClose();
 }
 
@@ -121,7 +138,7 @@ void SCADAWindow::stateChanged()
 {
     QObject *object = sender();
 
-    if ( object == m_in ){
+    if ( object == m_in_button ){
         std::cout << "State in changed " << std::endl;
         m_ads.data.in = !m_ads.data.in;
         m_ads.error = AdsSyncWriteReq(
@@ -134,7 +151,7 @@ void SCADAWindow::stateChanged()
 
         if ( m_ads.error )
             std::cout << "Error writing data to PLC" << std::endl;
-    } else if ( object == m_out ) {
+    } else if ( object == m_out_button ) {
         m_ads.data.out = !m_ads.data.out;
         m_ads.error = AdsSyncWriteReq(
                     m_ads.ptr_addr,
